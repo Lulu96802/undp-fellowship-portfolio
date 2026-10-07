@@ -1189,6 +1189,16 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .contact-role { font-size: 14px; color: var(--text-secondary); margin-bottom: 14px; }
   .contact-lead { font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; }
   .contact-card .about-links { margin-bottom: 0; }
+  /* the address is always visible and copyable — the Email button relies on a mail app being set up,
+     which many computers (especially work laptops using webmail) don't have */
+  .email-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; font-size: 14px; }
+  .email-label { color: var(--text-muted); }
+  .email-addr { color: var(--text-primary); font-weight: 600; }
+  .copy-btn {
+    font: inherit; font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--page); color: var(--text-primary);
+  }
+  .copy-btn:hover { background: var(--surface-1); }
   .contact-card .about-note { margin: 14px 0 0; }
   .about-links { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
   .about-contact { font-size: 14px; color: var(--text-secondary); display: grid; gap: 4px; }
@@ -1364,6 +1374,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
           <a class="btn primary" href="Lu-Hu-CV.pdf" target="_blank" rel="noopener">CV</a>
           <a class="btn ghost" href="https://www.linkedin.com/in/hlu96802" target="_blank" rel="noopener">LinkedIn</a>
           <a class="btn ghost" href="mailto:lu.hu@undp.org">Email</a>
+        </div>
+        <div class="email-row">
+          <span class="email-label">Email:</span>
+          <a class="email-addr" href="mailto:lu.hu@undp.org">lu.hu@undp.org</a>
+          <button type="button" class="copy-btn" data-copy="lu.hu@undp.org">Copy</button>
         </div>
         <p class="about-note">This portfolio is a personal record of my fellowship work and is not an official UNDP publication.</p>
       </div>
@@ -2042,6 +2057,24 @@ document.addEventListener("click", e => {
 window.addEventListener("hashchange", () => {
   const id = location.hash.slice(1);
   if (id && id.startsWith("case-")) openContribItem(id);
+});
+
+/* ---- copy email address to clipboard ---- */
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".copy-btn");
+  if (!btn) return;
+  const text = btn.dataset.copy;
+  const done = ok => { btn.textContent = ok ? "Copied ✓" : "Press Ctrl/Cmd+C"; setTimeout(() => (btn.textContent = "Copy"), 2000); };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => done(true), () => fallback());
+  } else fallback();
+  function fallback() {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch (_) {}
+    ta.remove(); done(ok);
+  }
 });
 
 /* ---- screenshot lightbox — click a thumbnail to see it enlarged, click
